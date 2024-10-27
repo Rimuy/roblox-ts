@@ -8,6 +8,18 @@ export = () => {
 		expect(str.sub(1, 1)).to.equal("H");
 	});
 
+	it("should support string indexing", () => {
+		const str = "Hello, world";
+		expect(str[0]).to.equal("H");
+		expect(str[7]).to.equal("w");
+
+		const utf8Str = "ab上cd下";
+		expect(utf8Str[1]).to.equal("b");
+		expect(utf8Str[2]).to.equal("上");
+		expect(utf8Str[3]).to.equal("c");
+		expect(utf8Str[5]).to.equal("下");
+	});
+
 	it("should support string.split", () => {
 		function checkLen<T>(len: number, arr: Array<T>) {
 			expect(arr.size()).to.equal(len);
