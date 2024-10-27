@@ -48,11 +48,13 @@ export function transformElementAccessExpressionInner(
 		return luau.create(luau.SyntaxKind.ParenthesizedExpression, { expression });
 	}
 
+	// String indexing
 	if (isStringType(expType)) {
 		expression = state.pushToVarIfNonId(expression, "str");
 
 		let condition = luau.binary(luau.call(luau.globals.utf8.len, [expression]), ">", index);
 		if (!luau.isNumberLiteral(index) || Number(index.value) < 0) {
+			// only check for the index if it's not known or invalid
 			condition = luau.binary(luau.binary(index, ">=", luau.number(0)), "and", condition);
 		}
 
