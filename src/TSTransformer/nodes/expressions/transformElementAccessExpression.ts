@@ -58,14 +58,14 @@ export function transformElementAccessExpressionInner(
 			condition = luau.binary(luau.binary(index, ">=", luau.number(0)), "and", condition);
 		}
 
-		const char = state.pushToVar(undefined, "char");
+		const code = state.pushToVar(undefined, "code");
 
 		state.prereq(
 			luau.create(luau.SyntaxKind.IfStatement, {
 				condition,
 				statements: luau.list.make(
 					luau.create(luau.SyntaxKind.Assignment, {
-						left: char,
+						left: code,
 						operator: "=",
 						right: luau.call(
 							luau.globals.utf8.codepoint,
@@ -80,7 +80,7 @@ export function transformElementAccessExpressionInner(
 			}),
 		);
 
-		return luau.call(luau.globals.utf8.char, [char]);
+		return luau.call(luau.globals.utf8.char, [code]);
 	}
 
 	if (ts.isDeleteExpression(skipUpwards(node).parent)) {
