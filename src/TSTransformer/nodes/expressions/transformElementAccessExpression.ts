@@ -8,7 +8,7 @@ import { convertToIndexableExpression } from "TSTransformer/util/convertToIndexa
 import { getConstantValueLiteral } from "TSTransformer/util/getConstantValueLiteral";
 import { offset } from "TSTransformer/util/offset";
 import { skipUpwards } from "TSTransformer/util/traversal";
-import { isLuaTupleType } from "TSTransformer/util/types";
+import { isLuaTupleType, isStringType } from "TSTransformer/util/types";
 import { validateNotAnyType } from "TSTransformer/util/validateNotAny";
 import ts from "typescript";
 
@@ -46,6 +46,33 @@ export function transformElementAccessExpressionInner(
 		}
 		// parentheses to trim off the rest of the values
 		return luau.create(luau.SyntaxKind.ParenthesizedExpression, { expression });
+	}
+
+	if (isStringType(expType)) {
+		expression = state.pushToVarIfNonId(expression, "str");
+
+		let condition = luau.binary(luau.call(luau.globals.utf8.len, [expression]), ">", index);
+		if (!luau.isNumberLiteral(index) || Number(index.value) < 0) {
+			condition = luau.binary(luau.binary(index, ">=", luau.number(0)), "and", condition);
+		}
+
+		const char = state.pushToVar(undefined, "char");
+
+		state.prereq(
+			luau.create(luau.SyntaxKind.IfStatement, {
+				condition,
+				statements: luau.list.make(
+					luau.create(luau.SyntaxKind.Assignment, {
+						left: char,
+						operator: "=",
+						right: luau.call(luau.globals.utf8.codepoint, [expression, luau.call(luau.globals.utf8.offset, [expression, offset(index, 1)])]),
+					})
+				),
+				elseBody: luau.list.make(),
+			}),
+		);
+
+		return luau.call(luau.globals.utf8.char, [char]);
 	}
 
 	if (ts.isDeleteExpression(skipUpwards(node).parent)) {
