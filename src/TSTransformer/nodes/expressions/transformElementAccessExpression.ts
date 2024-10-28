@@ -72,13 +72,10 @@ export function transformElementAccessExpressionInner(
 					luau.create(luau.SyntaxKind.Assignment, {
 						left: code,
 						operator: "=",
-						right: luau.call(
-							luau.globals.utf8.codepoint,
-							[
-								expression,
-								luau.call(luau.globals.utf8.offset, [expression, offset(n, 1)]),
-							],
-						),
+						right: luau.call(luau.globals.utf8.codepoint, [
+							expression,
+							luau.call(luau.globals.utf8.offset, [expression, offset(n, 1)]),
+						]),
 					}),
 				),
 				elseBody: luau.list.make(),
