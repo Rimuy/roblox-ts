@@ -12,12 +12,14 @@ export = () => {
 		const str = "Hello, world";
 		expect(str[0]).to.equal("H");
 		expect(str[7]).to.equal("w");
+		expect(str[12]).to.equal(undefined);
 
 		const utf8Str = "ab上cd下";
 		expect(utf8Str[1]).to.equal("b");
 		expect(utf8Str[2]).to.equal("上");
 		expect(utf8Str[3]).to.equal("c");
 		expect(utf8Str[5]).to.equal("下");
+		expect(utf8Str[-1]).to.equal(undefined);
 	});
 
 	it("should support string.split", () => {
