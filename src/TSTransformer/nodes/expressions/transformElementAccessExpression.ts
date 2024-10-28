@@ -8,7 +8,7 @@ import { convertToIndexableExpression } from "TSTransformer/util/convertToIndexa
 import { getConstantValueLiteral } from "TSTransformer/util/getConstantValueLiteral";
 import { offset } from "TSTransformer/util/offset";
 import { skipUpwards } from "TSTransformer/util/traversal";
-import { isLuaTupleType, isStringType } from "TSTransformer/util/types";
+import { isDefinitelyType, isLuaTupleType, isStringType } from "TSTransformer/util/types";
 import { validateNotAnyType } from "TSTransformer/util/validateNotAny";
 import ts from "typescript";
 
@@ -49,7 +49,7 @@ export function transformElementAccessExpressionInner(
 	}
 
 	// String indexing
-	if (isStringType(expType)) {
+	if (isDefinitelyType(expType, isStringType)) {
 		expression = state.pushToVarIfNonId(expression, "str");
 
 		let condition = luau.binary(luau.call(luau.globals.utf8.len, [expression]), ">", index);
