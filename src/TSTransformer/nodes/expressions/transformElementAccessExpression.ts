@@ -52,10 +52,15 @@ export function transformElementAccessExpressionInner(
 	if (isDefinitelyType(expType, isStringType)) {
 		expression = state.pushToVarIfNonId(expression, "str");
 
-		let condition = luau.binary(luau.call(luau.globals.utf8.len, [expression]), ">", index);
-		if (!luau.isNumberLiteral(index) || Number(index.value) < 0) {
+		let n = index;
+		if (!luau.isNumberLiteral(n)) {
+			n = state.pushToVar(n, "index");
+		}
+
+		let condition = luau.binary(luau.call(luau.globals.utf8.len, [expression]), ">", n);
+		if (!luau.isNumberLiteral(n) || Number(n.value) < 0) {
 			// only check for the index if it's not known or invalid
-			condition = luau.binary(luau.binary(index, ">=", luau.number(0)), "and", condition);
+			condition = luau.binary(luau.binary(n, ">=", luau.number(0)), "and", condition);
 		}
 
 		const code = state.pushToVar(undefined, "code");
@@ -71,7 +76,7 @@ export function transformElementAccessExpressionInner(
 							luau.globals.utf8.codepoint,
 							[
 								expression,
-								luau.call(luau.globals.utf8.offset, [expression, offset(index, 1)]),
+								luau.call(luau.globals.utf8.offset, [expression, offset(n, 1)]),
 							],
 						),
 					}),
